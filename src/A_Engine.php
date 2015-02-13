@@ -8,8 +8,20 @@
 
 abstract class A_Engine implements I_Engine {
 
-    public function __construct(){
+    public $curl;
+    public $config = array(
+        'redirect_url'  => '/',
+        'app_id'        => '000'
+    );
 
+    /**
+     * Constractor Engine, add config params
+     * @param array $conf
+     */
+    public function __construct($conf = array()){
+
+        foreach($this->config as $key => &$val)
+            if(isset($conf[$key])) $val = $conf[$key];
     }
 
     public function authenticate(){
