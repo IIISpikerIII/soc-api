@@ -6,12 +6,16 @@
  * Time: 20:13
  */
 
+require_once realpath(dirname(__FILE__) . '/I_Engine.php');
+require_once realpath(dirname(__FILE__) . '/SocException.php');
+
 abstract class A_Engine implements I_Engine {
 
     public $curl;
     public $config = array(
-        'redirect_url'  => '/',
-        'app_id'        => '000'
+        'redirect_url'  => 'url',
+        'app_id'        => 'id',
+        'secret_key'    => 'key'
     );
 
     /**
@@ -19,6 +23,10 @@ abstract class A_Engine implements I_Engine {
      * @param array $conf
      */
     public function __construct($conf = array()){
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         foreach($this->config as $key => &$val)
             if(isset($conf[$key])) $val = $conf[$key];
