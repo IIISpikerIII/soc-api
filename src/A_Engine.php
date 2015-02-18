@@ -6,8 +6,7 @@
  * Time: 20:13
  */
 
-require_once realpath(dirname(__FILE__) . '/I_Engine.php');
-require_once realpath(dirname(__FILE__) . '/SocException.php');
+require_once __DIR__ . '/I_Engine.php';
 
 abstract class A_Engine implements I_Engine {
 
@@ -32,12 +31,19 @@ abstract class A_Engine implements I_Engine {
             if(isset($conf[$key])) $val = $conf[$key];
     }
 
-    public function authenticate(){
-
+    protected function isAuth() {
+        return isset($_SESSION[__CLASS__.'auth']) && $_SESSION[__CLASS__.'auth'];
     }
 
-    public function getAccessToken(){
+    protected function setToken($token) {
 
+        $_SESSION[__CLASS__.'token'] = $token;
+        $_SESSION[__CLASS__.'auth'] = ($token !== null);
+    }
+
+    protected function getToken() {
+
+        return isset($_SESSION[__CLASS__.'token'])? $_SESSION[__CLASS__.'token']: false;
     }
 
 }
