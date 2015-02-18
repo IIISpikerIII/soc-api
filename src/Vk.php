@@ -88,10 +88,10 @@ class Vk extends A_Engine {
      */
     protected function getAccessUrl($code){
 
-        return sprintf($this->urls['access_url'], $this->config['app_id'], $this->config['secret_key'], $_GET['code'], $_SESSION['back_url']);
+        return sprintf($this->urls['access_url'], $this->config['app_id'], $this->config['secret_key'], $code, $_SESSION['back_url']);
     }
 
-    public function run($method,$data = array(), $auth = false){
+    public function run($method, $data = array(), $auth = false){
 
         if($auth) {
             $this->authenticate();
@@ -100,12 +100,12 @@ class Vk extends A_Engine {
 
         $data = http_build_query($data);
 
-        $url = $this->urls['link'].'photos.search?'.$data;
+        $url = $this->urls['link'].$method.'?'.$data;
 
         $curl = new Curl\Curl();
         $resp = $curl->get($url);
 
-        return json_decode($resp);
+        return $resp;
     }
 
 }
