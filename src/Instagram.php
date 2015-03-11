@@ -9,16 +9,16 @@
 
 require_once __DIR__. '/A_Engine.php';
 
-class Vk extends A_Engine {
+class Instagram extends A_Engine {
 
     const API_VERSION = '5.28';
 
     public $back_url;
-    public $scope = 'friends,video,offline,audio';
+    public $scope = 'basic';//basic+comments+relationships+likes
     public $urls = array(
-        'auth_url' => 'https://oauth.vk.com/authorize?client_id=%s&scope=%s&redirect_uri=%s&response_type=code&v=%s&state="SESSION_STATE" ',
-        'access_url' => 'https://oauth.vk.com/access_token?client_id=%s&client_secret=%s&code=%s&redirect_uri=%s',
-        'link' => 'https://api.vk.com/method/',
+        'auth_url' => 'https://api.instagram.com/oauth/authorize/?client_id=%s&redirect_uri=%s&response_type=code',
+        'access_url' => 'https://api.instagram.com/oauth/access_token?client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=%s&code=%s',
+        'link' => 'https://api.instagram.com/v1/',
     );
 
     public function authenticate() {
@@ -47,30 +47,20 @@ class Vk extends A_Engine {
 
         $url = $this->getAccessUrl($_GET['code']);
 
-        $curl = new Curl\Curl();
-        $resp = $curl->get($url);
+        $query = parse_url($url);
+        parse_str($query['query'], $params);
+        $query_url = $query['scheme'].'://'.$query['host'].$query['path'];
 
-        if(isset($resp->error)) throw new SocException($resp->error_description);
+        $curl = new Curl\Curl();
+        $resp = $curl->post($query_url, $params);
+
+        if(isset($resp->error_message)) throw new SocException($resp->error_message, $resp->code);
 
         $this->setToken($resp->access_token);
-        $_SESSION['timeout']    = time() + $resp->expires_in;
-        $_SESSION['user_id']    = $resp->user_id;
-        $_SESSION['vk_auth']    = true;
+
 
         header('Location:'.$_SESSION['back_url']);
         exit;
-    }
-
-    /**
-     * Check session time
-     * @return bool
-     */
-    protected static function checkTime(){
-
-        if(isset($_SESSION['timeout']) && time() < $_SESSION['timeout'])
-            return true;
-        else
-            return true;
     }
 
     /**
@@ -79,7 +69,7 @@ class Vk extends A_Engine {
      */
     protected function getAuthUrl(){
 
-        return sprintf($this->urls['auth_url'], $this->config['app_id'], $this->scope, $_SESSION['back_url'], self::API_VERSION);
+        return sprintf($this->urls['auth_url'], $this->config['app_id'], $_SESSION['back_url']);
     }
 
     /**
@@ -88,22 +78,22 @@ class Vk extends A_Engine {
      */
     protected function getAccessUrl($code){
 
-        return sprintf($this->urls['access_url'], $this->config['app_id'], $this->config['secret_key'], $code, $_SESSION['back_url']);
+        return sprintf($this->urls['access_url'], $this->config['app_id'], $this->config['secret_key'], $_SESSION['back_url'],$code);
     }
 
-    public function run($method, $data = array(), $auth = false){
+    public function run($method, $data = array(), $auth = false, $type = 'get'){
+
+        $method = trim($method, '/');
 
         if($auth) {
             $this->authenticate();
             $data['access_token'] = $this->getToken();
         }
 
-        $data = http_build_query($data);
-
-        $url = $this->urls['link'].$method.'?'.$data;
+        $url = $this->urls['link'].$method;
 
         $curl = new Curl\Curl();
-        $resp = $curl->get($url);
+        $resp = $curl->$type($url, $data);
 
         return $resp;
     }

@@ -17,6 +17,10 @@ abstract class A_Engine implements I_Engine {
         'secret_key'    => 'key'
     );
 
+    private static function getClass() {
+        return get_called_class();
+    }
+
     /**
      * Constractor Engine, add config params
      * @param array $conf
@@ -32,18 +36,23 @@ abstract class A_Engine implements I_Engine {
     }
 
     protected function isAuth() {
-        return isset($_SESSION[__CLASS__.'auth']) && $_SESSION[__CLASS__.'auth'];
+        return isset($_SESSION[self::getClass().'auth']) && $_SESSION[self::getClass().'auth'];
+    }
+
+    public function logout() {
+
+        if (isset($_SESSION[self::getClass().'auth']) && $_SESSION[self::getClass().'auth'])
+            unset($_SESSION[self::getClass().'auth']);
     }
 
     protected function setToken($token) {
-
-        $_SESSION[__CLASS__.'token'] = $token;
-        $_SESSION[__CLASS__.'auth'] = ($token !== null);
+        $_SESSION[self::getClass().'token'] = $token;
+        $_SESSION[self::getClass().'auth'] = ($token !== null);
     }
 
     protected function getToken() {
 
-        return isset($_SESSION[__CLASS__.'token'])? $_SESSION[__CLASS__.'token']: false;
+        return isset($_SESSION[self::getClass().'token'])? $_SESSION[self::getClass().'token']: false;
     }
 
 }
