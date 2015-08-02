@@ -3,7 +3,7 @@ API social resources
 
 example
 
-////// VK //////
+--- VK ---
 
 // if auth false
 $vk = new Vk();
@@ -19,7 +19,7 @@ $vk = new Vk(
 $data = $vk->run('audio.getLyrics',array('lyrics_id' => '2428970'), true);
 
 
-////// GOOGLE //////
+--- GOOGLE ---
 
 $google = new Google();
 
