@@ -1,7 +1,7 @@
 # soc-api
 API social resources
 
-example
+Used API: VK, GOOGLE, INSTAGRAM, FLICKR
 
 VK
 ----
@@ -15,6 +15,7 @@ if auth true
 ```php
 $vk = new Vk(
     array(
+        'redirect_url'  => 'XXXXXXXXXXXX',
         'app_id'        => 'XXXXXX',
         'secret_key'    => 'XXXXXXXXXXXXXXXXX',
     )
